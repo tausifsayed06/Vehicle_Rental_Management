@@ -141,13 +141,14 @@
   </footer>
 
   <script>
+    const API_URL = window.location.origin;
     const vehicles = [
       { id: 1, name: "Hyundai i20", category: "car", price: "₹1,500/day", seats: "5 Seater", fuel: "Petrol", img: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=500&q=80" },
       { id: 2, name: "Mahindra Thar 4x4", category: "car", price: "₹3,500/day", seats: "4 Seater", fuel: "Diesel", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=500&q=80" },
       { id: 3, name: "Royal Enfield Classic 350", category: "bike", price: "₹800/day", seats: "2 Seater", fuel: "Petrol", img: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=500&q=80" },
       { id: 4, name: "KTM Duke 390", category: "bike", price: "₹1,200/day", seats: "2 Seater", fuel: "Petrol", img: "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=500&q=80" }
     ];
-
+      
     let currentUser = null;
     let authMode = 'login';
 
@@ -203,7 +204,7 @@
 
       const endpoint = authMode === 'login' ? '/api/login' : '/api/register';
       try {
-        const res = await fetch(`http://localhost:5000${endpoint}`, {
+        const res = await fetch(`${API_URL}${endpoint}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
