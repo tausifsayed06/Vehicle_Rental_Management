@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DriveEase - Vehicle Rental Service</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #ff4757;
+      --secondary: #2f3542;
+      --light: #f1f2f6;
+      --dark: #1e90ff;
+      --white: #ffffff;
+      --shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { background-color: #f8f9fa; color: #333; }
+    header { background: var(--white); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; }
+    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 5%; max-width: 1200px; margin: auto; }
+    .logo { font-size: 1.8rem; font-weight: 700; color: var(--secondary); }
+    .logo span { color: var(--primary); }
+    .nav-links { display: flex; list-style: none; gap: 20px; align-items: center; }
+    .nav-links a { text-decoration: none; color: var(--secondary); font-weight: 500; transition: 0.3s; }
+    .nav-links a:hover { color: var(--primary); }
+    .btn { padding: 8px 20px; border: none; border-radius: 25px; cursor: pointer; font-weight: 600; transition: 0.3s; }
+    .btn-primary { background: var(--primary); color: var(--white); }
+    .btn-primary:hover { background: #e84118; }
+    .hero {
+      background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                  url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1350&q=80') center/cover;
+      height: 60vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: var(--white); padding: 0 20px;
+    }
+    .hero h1 { font-size: 2.8rem; margin-bottom: 15px; }
+    .hero p { font-size: 1.1rem; margin-bottom: 25px; max-width: 600px; }
+    .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+    .section-title { text-align: center; font-size: 2rem; margin-bottom: 30px; position: relative; }
+    .section-title::after { content: ''; width: 60px; height: 4px; background: var(--primary); position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); }
+    .filter-buttons { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
+    .filter-btn { padding: 8px 20px; border: 1px solid var(--primary); background: transparent; color: var(--primary); border-radius: 20px; cursor: pointer; font-weight: 500; }
+    .filter-btn.active, .filter-btn:hover { background: var(--primary); color: var(--white); }
+    .vehicle-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; }
+    .card { background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); transition: transform 0.3s; }
+    .card:hover { transform: translateY(-5px); }
+    .card img { width: 100%; height: 180px; object-fit: cover; }
+    .card-body { padding: 20px; }
+    .card-title { font-size: 1.3rem; margin-bottom: 10px; }
+    .card-price { font-size: 1.1rem; color: var(--primary); font-weight: 700; margin-bottom: 15px; }
+    .card-features { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.9rem; color: #666; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000; }
+    .modal-content { background: var(--white); padding: 30px; border-radius: 12px; width: 90%; max-width: 420px; position: relative; }
+    .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+    .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
+    .alert { padding: 12px; background: #2ed573; color: white; text-align: center; border-radius: 6px; margin-bottom: 15px; display: none; }
+    footer { background: var(--secondary); color: var(--white); text-align: center; padding: 20px; margin-top: 50px; }
+    .tab-toggle { display: flex; justify-content: space-around; margin-bottom: 20px; border-bottom: 1px solid #ddd; }
+    .tab-toggle button { background: none; border: none; padding: 10px; font-weight: 600; cursor: pointer; color: #666; }
+    .tab-toggle button.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="logo">Drive<span>Ease</span></div>
+      <ul class="nav-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#vehicles">Vehicles</a></li>
+        <li id="user-display" style="display:none; font-weight:600; color:var(--primary);"></li>
+        <li><button class="btn btn-primary" id="auth-btn" onclick="openAuthModal()">Login / Register</button></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="hero" id="home">
+    <h1>Find Your Perfect Ride Today</h1>
+    <p>Rent cars & bikes at affordable daily rates for your travel and daily needs.</p>
+    <a href="#vehicles" class="btn btn-primary" style="text-decoration:none;">Explore Vehicles</a>
+  </section>
+
+  <div class="container" id="vehicles">
+    <h2 class="section-title">Our Rental Fleet</h2>
+    <div class="filter-buttons">
+      <button class="filter-btn active" onclick="filterVehicles('all')">All</button>
+      <button class="filter-btn" onclick="filterVehicles('car')">Cars</button>
+      <button class="filter-btn" onclick="filterVehicles('bike')">Bikes</button>
+    </div>
+    <div class="vehicle-grid" id="vehicle-grid"></div>
+  </div>
+
+  <!-- Auth Modal -->
+  <div class="modal" id="authModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeAuthModal()">&times;</span>
+      <div class="tab-toggle">
+        <button id="loginTab" class="active" onclick="switchAuthMode('login')">Login</button>
+        <button id="registerTab" onclick="switchAuthMode('register')">Register</button>
+      </div>
+      <form id="authForm" onsubmit="handleAuth(event)">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="authEmail" placeholder="student@college.edu" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="authPassword" placeholder="******" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;" id="authSubmitBtn">Login</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Booking Modal -->
+  <div class="modal" id="bookingModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeBookingModal()">&times;</span>
+      <h3 style="margin-bottom: 15px;">Book Vehicle</h3>
+      <div id="bookingAlert" class="alert">Booking Saved to Database!</div>
+      <form id="bookingForm" onsubmit="handleBooking(event)">
+        <div class="form-group">
+          <label>Selected Vehicle</label>
+          <input type="text" id="bookVehicleName" readonly style="background:#eee;">
+        </div>
+        <div class="form-group">
+          <label>Start Date</label>
+          <input type="date" id="bookStartDate" required>
+        </div>
+        <div class="form-group">
+          <label>Number of Days</label>
+          <input type="number" id="bookDays" min="1" max="30" value="1" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Confirm Booking</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 DriveEase - Vehicle Rental Service (Full-Stack College Project)</p>
+  </footer>
+
+  <script>
+    const vehicles = [
+      { id: 1, name: "Hyundai i20", category: "car", price: "₹1,500/day", seats: "5 Seater", fuel: "Petrol", img: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=500&q=80" },
+      { id: 2, name: "Mahindra Thar 4x4", category: "car", price: "₹3,500/day", seats: "4 Seater", fuel: "Diesel", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=500&q=80" },
+      { id: 3, name: "Royal Enfield Classic 350", category: "bike", price: "₹800/day", seats: "2 Seater", fuel: "Petrol", img: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=500&q=80" },
+      { id: 4, name: "KTM Duke 390", category: "bike", price: "₹1,200/day", seats: "2 Seater", fuel: "Petrol", img: "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=500&q=80" }
+    ];
+
+    let currentUser = null;
+    let authMode = 'login';
+
+    function displayVehicles(items) {
+      const grid = document.getElementById('vehicle-grid');
+      grid.innerHTML = items.map(v => `
+        <div class="card">
+          <img src="${v.img}" alt="${v.name}">
+          <div class="card-body">
+            <h3 class="card-title">${v.name}</h3>
+            <div class="card-price">${v.price}</div>
+            <div class="card-features">
+              <span><i class="fa-solid fa-user"></i> ${v.seats}</span>
+              <span><i class="fa-solid fa-gas-pump"></i> ${v.fuel}</span>
+            </div>
+            <button class="btn btn-primary" style="width:100%;" onclick="openBookingModal('${v.name}')">Book Now</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterVehicles(cat) {
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      if(cat === 'all') displayVehicles(vehicles);
+      else displayVehicles(vehicles.filter(v => v.category === cat));
+    }
+
+    function openAuthModal() {
+      if(currentUser) {
+        currentUser = null;
+        document.getElementById('user-display').style.display = 'none';
+        document.getElementById('auth-btn').innerText = 'Login / Register';
+        alert('Logged out successfully!');
+        return;
+      }
+      document.getElementById('authModal').style.display = 'flex';
+    }
+
+    function closeAuthModal() { document.getElementById('authModal').style.display = 'none'; }
+
+    function switchAuthMode(mode) {
+      authMode = mode;
+      document.getElementById('loginTab').classList.toggle('active', mode === 'login');
+      document.getElementById('registerTab').classList.toggle('active', mode === 'register');
+      document.getElementById('authSubmitBtn').innerText = mode === 'login' ? 'Login' : 'Register';
+    }
+
+    async function handleAuth(e) {
+      e.preventDefault();
+      const email = document.getElementById('authEmail').value;
+      const password = document.getElementById('authPassword').value;
+
+      const endpoint = authMode === 'login' ? '/api/login' : '/api/register';
+      try {
+        const res = await fetch(`http://localhost:5000${endpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if(res.ok) {
+          currentUser = data.user.email;
+          document.getElementById('user-display').innerText = `Hello, ${currentUser.split('@')[0]}`;
+          document.getElementById('user-display').style.display = 'inline';
+          document.getElementById('auth-btn').innerText = 'Logout';
+          closeAuthModal();
+          alert(data.message);
+        } else {
+          alert(data.message);
+        }
+      } catch (err) {
+        alert('Server Connection Error. Make sure Node.js server is running on http://localhost:5000!');
+      }
+    }
+
+    function openBookingModal(vehicleName) {
+      if(!currentUser) {
+        alert('Please login first to book a vehicle!');
+        openAuthModal();
+        return;
+      }
+      document.getElementById('bookVehicleName').value = vehicleName;
+      document.getElementById('bookingModal').style.display = 'flex';
+    }
+
+    function closeBookingModal() {
+      document.getElementById('bookingModal').style.display = 'none';
+      document.getElementById('bookingAlert').style.display = 'none';
+    }
+
+    async function handleBooking(e) {
+      e.preventDefault();
+      const bookingData = {
+        userEmail: currentUser,
+        vehicleName: document.getElementById('bookVehicleName').value,
+        startDate: document.getElementById('bookStartDate').value,
+        days: document.getElementById('bookDays').value
+      };
+
+      try {
+        const res = await fetch('http://localhost:5000/api/book', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bookingData)
+        });
+        const data = await res.json();
+        if(res.ok) {
+          document.getElementById('bookingAlert').style.display = 'block';
+          setTimeout(() => { closeBookingModal(); }, 2000);
+        } else {
+          alert(data.message);
+        }
+      } catch (err) {
+        alert('Error saving booking to backend!');
+      }
+    }
+
+    displayVehicles(vehicles);
+  </script>
+</body>
+</html>
